@@ -129,7 +129,7 @@ export function OnboardingWizard({ config, pluginRegistry, onComplete }: Onboard
     return () => clearTimeout(focusTimer);
   }, [editingField, portfolioSub, brokerFieldIdx, account.accountSub, account.accountFieldIdx]);
 
-  const { beginAccountMode, syncExistingAccountSession } = account;
+  const { beginAccountMode, beginQrSignIn, syncExistingAccountSession } = account;
   useEffect(() => {
     if (step !== "account") return;
     syncExistingAccountSession();
@@ -142,8 +142,12 @@ export function OnboardingWizard({ config, pluginRegistry, onComplete }: Onboard
       nextStep();
       return;
     }
+    if (choice === "qr") {
+      beginQrSignIn();
+      return;
+    }
     beginAccountMode(choice);
-  }, [beginAccountMode, nextStep]);
+  }, [beginAccountMode, beginQrSignIn, nextStep]);
 
   const {
     isBrokerSyncing,
@@ -234,6 +238,7 @@ export function OnboardingWizard({ config, pluginRegistry, onComplete }: Onboard
     accountSubmitting: account.accountSubmitting,
     accountSubmitError: account.accountSubmitError,
     beginAccountMode: account.beginAccountMode,
+    beginQrSignIn: account.beginQrSignIn,
     returnToAccountChooser: account.returnToAccountChooser,
     switchToAccountLogin: account.switchToAccountLogin,
     submitAccountField: account.submitAccountField,
@@ -266,7 +271,9 @@ export function OnboardingWizard({ config, pluginRegistry, onComplete }: Onboard
     hintText = t("enter to launch");
   }
   if (step === "account") {
-    if (account.accountSubmitting) {
+    if (account.accountSub === "qr") {
+      hintText = t("esc to go back");
+    } else if (account.accountSubmitting) {
       hintText = account.accountSub === "login" ? t("signing in...") : t("creating account...");
     } else if (account.accountSubmitError?.kind === "switch-to-login") {
       hintText = t("enter to log in");
@@ -345,6 +352,7 @@ export function OnboardingWizard({ config, pluginRegistry, onComplete }: Onboard
             outcome={account.accountOutcome}
             onEmailChange={account.setAccountEmail}
             onPasswordChange={account.setAccountPassword}
+            onQrApproved={account.completeQrSignIn}
             height={contentHeight}
           />
         )}

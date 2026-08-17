@@ -31,6 +31,8 @@ export interface OnboardingAccountState {
   setAccountEmail: (value: string) => void;
   setAccountPassword: (value: string) => void;
   beginAccountMode: (mode: AccountMode) => void;
+  beginQrSignIn: () => void;
+  completeQrSignIn: (email: string) => void;
   returnToAccountChooser: () => void;
   switchToAccountLogin: () => void;
   submitAccountField: () => void;
@@ -97,6 +99,26 @@ export function useOnboardingAccount({
     setAccountSub(mode);
     setEditingField(true);
   }, [clearErrors, setEditingField]);
+
+  const beginQrSignIn = useCallback(() => {
+    attemptRef.current += 1;
+    clearErrors();
+    setAccountSubmitting(false);
+    setAccountSub("qr");
+    setEditingField(false);
+  }, [clearErrors, setEditingField]);
+
+  // The QR panel owns the network flow; this only records the outcome and
+  // advances once the mobile app has approved the session.
+  const completeQrSignIn = useCallback((email: string) => {
+    attemptRef.current += 1;
+    resetAccountPassword();
+    setAccountSubmitting(false);
+    onboardingLog.info("Onboarding account step completed", { mode: "qr" });
+    setAccountOutcome({ mode: "login", email });
+    setAccountSub("signed-in");
+    nextStep();
+  }, [nextStep, resetAccountPassword]);
 
   const returnToAccountChooser = useCallback(() => {
     attemptRef.current += 1;
@@ -226,6 +248,8 @@ export function useOnboardingAccount({
     setAccountEmail,
     setAccountPassword,
     beginAccountMode,
+    beginQrSignIn,
+    completeQrSignIn,
     returnToAccountChooser,
     switchToAccountLogin,
     submitAccountField,

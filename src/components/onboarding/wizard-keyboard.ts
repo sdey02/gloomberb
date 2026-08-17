@@ -41,6 +41,7 @@ export function useOnboardingKeyboard({
   accountSubmitting,
   accountSubmitError,
   beginAccountMode,
+  beginQrSignIn,
   returnToAccountChooser,
   switchToAccountLogin,
   submitAccountField,
@@ -80,6 +81,7 @@ export function useOnboardingKeyboard({
   accountSubmitting: boolean;
   accountSubmitError: AccountSubmitError | null;
   beginAccountMode: (mode: AccountMode) => void;
+  beginQrSignIn: () => void;
   returnToAccountChooser: () => void;
   switchToAccountLogin: () => void;
   submitAccountField: () => void;
@@ -157,9 +159,15 @@ export function useOnboardingKeyboard({
             nextStep();
             return;
           }
+          if (choice === "qr") {
+            beginQrSignIn();
+            return;
+          }
           beginAccountMode(choice);
           return;
         }
+        // The QR panel owns enter (retry after a denial); approval advances itself.
+        if (accountSub === "qr") return;
         if (accountSub === "signup" || accountSub === "login") {
           if (accountSubmitError?.kind === "switch-to-login") {
             switchToAccountLogin();
@@ -245,7 +253,7 @@ export function useOnboardingKeyboard({
       }
       nextStep();
     } else if (isBackNavigationKey(event) || event.name === "left") {
-      if (step === "account" && (accountSub === "signup" || accountSub === "login")) {
+      if (step === "account" && (accountSub === "signup" || accountSub === "login" || accountSub === "qr")) {
         returnToAccountChooser();
         return;
       }

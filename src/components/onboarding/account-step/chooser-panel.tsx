@@ -23,6 +23,7 @@ export function AccountChooserPanel({
     t("Chat + AI command bar"),
   ];
   const choices = useMemo<ListViewItem[]>(() => [
+    { id: "qr", label: t("Scan QR with the mobile app"), description: t("Recommended: approve from your phone, no typing") },
     { id: "signup", label: t("Create free account"), description: t("Email and password — that's it") },
     { id: "login", label: t("Log In"), description: t("Already have a Gloom Cloud account") },
     { id: "skip", label: t("Skip for now"), description: t("Continue without an account") },

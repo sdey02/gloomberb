@@ -289,7 +289,10 @@ describe("OnboardingWizard", () => {
     }
     let frame = await waitForFrameToContain("Create your free Gloom Cloud account");
     expect(frame).toContain("Try Pro free for 7 days");
+    expect(frame).toContain("Scan QR with the mobile app");
 
+    // QR sign-in is the first (recommended) choice; step past it to the signup form.
+    await emitKeypress(testSetup, { name: "down", sequence: "\u001b[B" });
     await emitKeypress(testSetup, { name: "return", sequence: "\r" });
     await waitForFrameToContain("Create your free account");
 

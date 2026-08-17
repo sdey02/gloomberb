@@ -576,6 +576,23 @@ export interface CloudVerificationResponse {
   alreadyVerified?: boolean;
 }
 
+export interface DeviceAuthStartResponse {
+  deviceCode: string;
+  /** 8 characters formatted "XXXX-XXXX", shown so a user without the app can type it. */
+  userCode: string;
+  expiresAt: string;
+  /** Like https://gloom.sh/link/<userCode>; this is what the QR code encodes. */
+  verificationUri: string;
+  pollIntervalMs: number;
+}
+
+/** The approved response is single-use; polling again returns a non-approved status. */
+export type DeviceAuthTokenResponse =
+  | { status: "pending" }
+  | { status: "denied" }
+  | { status: "expired" }
+  | { status: "approved"; sessionToken: string; user: AuthUser };
+
 export interface QuoteStreamTarget {
   symbol: string;
   exchange?: string;
